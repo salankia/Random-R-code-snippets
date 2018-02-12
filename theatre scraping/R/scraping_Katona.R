@@ -15,21 +15,26 @@ schedule <- data.frame(date = character(0),
                           title = character(0),
                           tickets = character(0))
 
-for(i in 1:length(title_data)) {
+for(i in 1:length(plays_titles)) {
   print(i)
   current_date <- html_text(html_node(webpage_root,
                                       paste0('tr:nth-child(', i,') td')))
   current_location <- html_text(html_node(webpage_root,
                                           paste0('tr:nth-child(', i, ') td:nth-child(2)')))
-  current_title <- title_data[i]
+  current_title <- plays_titles[i]
   current_tickets <- html_text(html_node(webpage_root, paste0('tr:nth-child(',i,') :nth-child(4)')))
   
-  schedule <<- rbind(large_frame,
+  schedule <<- rbind(schedule,
                        data.frame(date = current_date,
                                   location = current_location,
                                   title = current_title,
                                   tickets = current_tickets))
 }
+
+## unfortunately, we have to remove the "Jegyvasarlas" titles and
+## shift the titles back
+schedule$title <- c(as.character(schedule$title[schedule$title != "Jegyvásárlás"]),
+                    rep(NA, times = sum(schedule$title == "Jegyvásárlás")))
 
 ############# Actors in each play ##############################################
 url_list_of_playes <- "http://katonajozsefszinhaz.hu/eloadasok/repertoar"
@@ -74,12 +79,13 @@ lapply(seq(from = 1, to = length(plays_title)), function(i){
   }
   T
 })
+colnames(actors_cooccurrence) <- c("from", "to", "title")
 
 ############# Getting the actors' profile picture links ########################
 url_creators <- "http://katonajozsefszinhaz.hu/tarsulat"
 webpage_creators <- read_html(url_creators)
 
-creators_html <- html_nodes(webpage, '#contents-news a')
+creators_html <- html_nodes(webpage_creators, '#contents-news a')
 creators <- html_text(creators_html)
 
 creators_link <- lapply(creators_html, function(creator_url){
@@ -89,11 +95,12 @@ creators_link <- lapply(creators_html, function(creator_url){
   ## we filter down to actors and directors only
   if(grepl(pattern = "tarsulat", creator_url_char)) {
     gsub(pattern = "<a href=\"",replacement = "http://katonajozsefszinhaz.hu",
-         strsplit(url_char, split = "\">", fixed = T)[[1]][1])    
+         strsplit(creator_url_char, split = "\">", fixed = T)[[1]][1])    
   } else {NA}
 })
 
 actors_image_urls <- lapply(creators_link, function(creator_url_char){
+  print(creator_url_char)
   if(!is.na(creator_url_char)){
     print(creator_url_char)
     actor_webpage <- read_html(creator_url_char)
@@ -105,3 +112,5 @@ actors_image_urls <- lapply(creators_link, function(creator_url_char){
     )
   } else {character(0)}
 })
+creators <- as.data.frame(creators)
+creators$image_url <- unlist(actors_image_urls)

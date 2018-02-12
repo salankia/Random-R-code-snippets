@@ -1,6 +1,8 @@
 library(networkD3)
 
 input <- read.csv("aggregated.csv")
+input <- actors_cooccurrence
+
 
 nodes <- as.data.frame(unique(c(as.character(input$from),
                                 as.character(input$to))))
@@ -30,8 +32,6 @@ forceNetwork(Links = links,
 
 #################
 library('visNetwork') 
-input <- read.csv("aggregated.csv")
-
 nodes <- as.data.frame(unique(c(as.character(input$from),
                                 as.character(input$to))))
 
@@ -40,9 +40,9 @@ nodes <- as.data.frame(nodes[nodes$label != "" & nodes$label != "Hofra Kft.", 1]
 colnames(nodes) <- "label"
 nodes$label <- as.character(nodes$label)
 nodes$id <- seq(from = 0, to = (length(nodes$label) - 1))
-alkotok_df$image_url <- as.character(alkotok_df$image_url)
+actors_image_urls$image_url <- as.character(actors_image_urls$image_url)
 
-nodes <- merge(nodes, alkotok_df,
+nodes <- merge(nodes, actors_image_urls,
                by.x = "label", by.y = "name",
                all.x = T)
 nodes$image_url[is.na(nodes$image_url)] <- "http://katonajozsefszinhaz.hu/templates/2014/images/logo_2014.png"
