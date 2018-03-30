@@ -35,7 +35,9 @@ for(i in 1:length(plays_titles)) {
 ## shift the titles back
 schedule$title <- c(as.character(schedule$title[schedule$title != "Jegyvásárlás"]),
                     rep(NA, times = sum(schedule$title == "Jegyvásárlás")))
-
+write.csv(schedule, file = paste0(
+  gsub(x = Sys.time(), pattern = ":|-", replacement =  ""),
+  ".csv"), row.names = F)
 ############# Actors in each play ##############################################
 url_list_of_playes <- "http://katonajozsefszinhaz.hu/eloadasok/repertoar"
 webpage_list_of_playes <- read_html(url_list_of_playes)
