@@ -12,4 +12,4 @@ location_timing <- first_set %>%
   summarise(location = unique(location),
             number_of_plays = n())
 
-write.csv(location_timing, file = "location_timing.csv", row.names= F)
+write.csv(location_timing, file = "data/location_timing.csv", row.names= F)
