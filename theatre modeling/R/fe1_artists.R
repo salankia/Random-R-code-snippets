@@ -50,6 +50,7 @@ lapply(eloadasok_abszolut, function(link){
 })
 
 artists1 <- szineszek
+names(artists1) <- eloadasok_cim
 
 
 ################################################################################
@@ -99,12 +100,39 @@ lapply(eloadasok_abszolut, function(link){
 })
 
 artists2 <- szineszek
+names(artists2) <- eloadasok_cim
 
 ## Merging the two together:
+full <- c(artists1, artists2)
 artists_full <- unique(c(unlist(artists1), unlist(artists2)))
-plays_and_actors <- matrix(data = 0, nrow = length(eloadasok_cim),
+
+plays_and_actors <- matrix(data = 0, nrow = length(full),
                            ncol = length(artists_full))
 colnames(plays_and_actors) <- artists_full
-rownames(plays_and_actors) <- eloadasok_cim
+rownames(plays_and_actors) <- names(full)
+##plays_and_actors <- plays_and_actors[c(1:23, 25:30, 32:40, 42:46), ]
 
+lapply(seq(from = 1, to = length(full)),
+       function(index){
+         print(index)
+         print(full[[index]])
+           plays_and_actors[index, unlist(full[[index]][full[[index]] != ""])] <<-  1
+         T
+})
+plays_and_actors <- as.data.frame(plays_and_actors)
+plays_and_actors$title <- rownames(plays_and_actors)
+plays_and_actors <- plays_and_actors %>% 
+  mutate(title = gsub("á", "a", title),
+         title = gsub("é", "e", title),
+         title = gsub("ü", "u", title),
+         title = gsub("í", "i", title),
+         title = gsub("Á", "a", title),
+         title = gsub("ó", "o", title),
+         title = gsub("ö", "o", title),
+         title = gsub("ú", "u", title),
+         title = gsub("ő", "o", title),
+         title = gsub("ű", "u", title)
+         )
+
+write.csv(plays_and_actors, file = "data/actors.csv", row.names = F)
 
